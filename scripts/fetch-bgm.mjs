@@ -5,7 +5,7 @@
  * Attribution: Kevin MacLeod — CC BY 4.0 (see README).
  *
  * Usage: node scripts/fetch-bgm.mjs
- * TLS issues: node scripts/fetch-bgm.mjs --insecure
+ * TLS issues: node scripts/fetch-bgm.mjs --insecure   OR   FETCH_ASSETS_INSECURE=1
  * Skip re-encode: node scripts/fetch-bgm.mjs --no-reencode
  */
 import { spawnSync } from 'node:child_process'
@@ -13,10 +13,10 @@ import { createWriteStream, mkdirSync, renameSync, unlinkSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import https from 'node:https'
+import { createHttpsAgent, tlsDownloadHint } from './tls-utils.mjs'
 
-const insecure = process.argv.includes('--insecure')
 const skipReencode = process.argv.includes('--no-reencode')
-const agent = insecure ? new https.Agent({ rejectUnauthorized: false }) : undefined
+const agent = createHttpsAgent()
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const outDir = join(__dirname, '../public/audio')
@@ -54,6 +54,11 @@ function download(url, dest) {
       })
       .on('error', (err) => {
         file.close()
+        const m = err instanceof Error ? err.message : String(err)
+        if (/UNABLE_TO_GET_ISSUER_CERT|certificate|Cert|TLS|SSL/i.test(m)) {
+          reject(new Error(tlsDownloadHint(m)))
+          return
+        }
         reject(err)
       })
   })

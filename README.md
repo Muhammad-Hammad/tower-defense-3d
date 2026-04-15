@@ -48,10 +48,33 @@ React · TypeScript · Vite · `@react-three/fiber` · `@react-three/drei` · Th
 ```bash
 npm install
 cp .env.example .env    # optional: Supabase keys + run supabase/migrations SQL
-npm run fetch:models      # optional: Kenney Tower Defense Kit GLB → public/models/
+npm run fetch:models      # optional: Kenney kit GLB → public/models/ (towers, enemies, props)
 npm run fetch:bgm         # optional: BGM (see Audio below)
 npm run dev
 ```
+
+### TLS / `UNABLE_TO_GET_ISSUER_CERT_LOCALLY`
+
+Common on **Windows** behind **corporate HTTPS inspection** or with an incomplete root CA bundle.
+
+**Fetch scripts (BGM / Kenney models)** — bypass verification for that download only:
+
+```bash
+npm run fetch:bgm:insecure
+npm run fetch:models:insecure
+```
+
+Or set **`FETCH_ASSETS_INSECURE=1`** for one session (PowerShell: `$env:FETCH_ASSETS_INSECURE='1'; npm run fetch:models`).
+
+**Proper fix:** import your org’s root CA and point Node/npm at it, e.g. `npm config set cafile "C:\path\to\company-root.pem"`.
+
+**If `npm install` fails** with the same error (npm registry SSL):
+
+```bash
+npm config set cafile "C:\path\to\company-root.pem"
+```
+
+Last resort (insecure): `npm config set strict-ssl false` — turn back on when off VPN.
 
 ## Audio
 
@@ -70,9 +93,9 @@ Battle BGM is **[Griphop](https://incompetech.com/music/royalty-free/music.html)
 
 ## 3D models
 
-Kenney *Tower Defense Kit* (CC0): `npm run fetch:models` → `public/models/`. The game falls back to procedural meshes if files are missing.
+Kenney *Tower Defense Kit* (CC0): `npm run fetch:models` or `npm run sync:kenney` copies **`.glb` files** and the shared **`Textures/`** folder (e.g. `colormap.png`) into `public/models/towers`, `enemies`, and `props`. GLTF references paths like `Textures/colormap.png` relative to each model; without those files, materials break and the console reports missing textures.
 
-**Git:** Large generated files are listed in `.gitignore` (e.g. `public/audio/bgm-loop.mp3`, Kenney `.glb` under `public/models/`). Deployed sites still run: BGM falls back to `bgm-loop.wav`, towers/enemies use procedural meshes. To ship assets on Netlify without committing them, use a **build plugin** or **post-clone script**, or remove those lines from `.gitignore` and commit smaller encodes only.
+**Git / deploy:** `.gitignore` lists Kenney `.glb` files and `public/models/*/Textures/`. Deploys without those files still run (procedural fallbacks). For **Netlify**, run `sync:kenney` or `fetch:models` **before** `npm run build` so `dist/models/...` contains GLBs and `Textures/`; missing assets return the SPA shell and loaders error with **`Unexpected token '<' … is not valid JSON`**. To publish models from git, drop those ignore rules or add a CI step that populates `public/models` before the Vite build.
 
 ## Phase docs
 
@@ -92,8 +115,11 @@ GitHub Actions runs `npm ci`, `npm run lint`, and `npm run build` on push/PR (se
 | `npm run build` | Typecheck + production build |
 | `npm run lint` | ESLint |
 | `npm run fetch:bgm` | Download BGM + optional ffmpeg web loop |
+| `npm run fetch:bgm:insecure` | Same, skip TLS verification (corporate CA issues) |
 | `npm run compress:bgm` | Re-encode existing `bgm-loop.mp3` (~90s, 96k) |
 | `npm run fetch:models` | Download Kenney GLB assets |
+| `npm run fetch:models:insecure` | Same, skip TLS verification |
+| `npm run sync:kenney` | Copy GLBs from `tmp-kenney/extracted` (or pass path) |
 
 ## License
 

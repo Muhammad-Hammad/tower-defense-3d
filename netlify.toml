@@ -3,7 +3,9 @@
   command = "npm ci && npm run build"
   publish = "dist"
 
-# SPA: send all routes to index.html (Vite client-side routing if used later)
+# SPA fallback. Netlify serves real files under publish/ first; this runs only when
+# no file exists (e.g. client-only routes). Missing /models/**/*.glb still hits this
+# and returns HTML — fix by ensuring Kenney assets are in public/ before build.
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -10,40 +10,11 @@ import { useGameStore } from '../../store/gameStore'
 import type { PlacementMode } from '../../store/gameStore'
 import { WeatherParticles } from './WeatherParticles'
 import { BiomeTerrain } from './terrain/BiomeTerrain'
+import { KenneyBiomeDecorations } from './KenneyBiomeDecor'
 
 type Props = {
   placementMode: PlacementMode
   onGroundPointerDown: (x: number, z: number) => void
-}
-
-function ProceduralTree({ x, z, s = 1 }: { x: number; z: number; s?: number }) {
-  return (
-    <group position={[x, 0, z]} scale={s}>
-      <mesh position={[0, 0.55, 0]}>
-        <cylinderGeometry args={[0.12, 0.18, 1.0, 8]} />
-        <meshStandardMaterial color="#5a3d28" roughness={0.9} />
-      </mesh>
-      <mesh position={[0, 1.35, 0]}>
-        <coneGeometry args={[0.55, 1.1, 8]} />
-        <meshStandardMaterial color="#2d6b38" roughness={0.75} />
-      </mesh>
-      <mesh position={[0, 2.05, 0]}>
-        <coneGeometry args={[0.4, 0.85, 8]} />
-        <meshStandardMaterial color="#3a8048" roughness={0.75} />
-      </mesh>
-    </group>
-  )
-}
-
-function GrasslandsDecor() {
-  return (
-    <>
-      <ProceduralTree x={18} z={14} s={1.05} />
-      <ProceduralTree x={-16} z={12} s={0.92} />
-      <ProceduralTree x={15} z={-17} s={1.1} />
-      <ProceduralTree x={-18} z={-14} s={0.88} />
-    </>
-  )
 }
 
 function LavaPool({ x, z }: { x: number; z: number }) {
@@ -70,52 +41,12 @@ function LavaPool({ x, z }: { x: number; z: number }) {
   )
 }
 
-function VolcanicDecor() {
+function VolcanicLavaDecor() {
   return (
     <>
       <LavaPool x={14} z={10} />
       <LavaPool x={-12} z={-11} />
       <LavaPool x={9} z={-15} />
-    </>
-  )
-}
-
-function IceCrystal({ x, z, rot = 0 }: { x: number; z: number; rot?: number }) {
-  return (
-    <group position={[x, 0.45, z]} rotation={[0, rot, 0]}>
-      <mesh rotation={[Math.PI / 2, 0, 0.35]}>
-        <octahedronGeometry args={[0.55, 0]} />
-        <meshStandardMaterial
-          color="#d8f0ff"
-          emissive="#a8d8ff"
-          emissiveIntensity={0.35}
-          metalness={0.25}
-          roughness={0.2}
-          transparent
-          opacity={0.92}
-        />
-      </mesh>
-      <mesh rotation={[0.2, 0.4, 0]} position={[0.15, 0.35, 0]}>
-        <octahedronGeometry args={[0.32, 0]} />
-        <meshStandardMaterial
-          color="#e8f8ff"
-          emissive="#b0e0ff"
-          emissiveIntensity={0.45}
-          metalness={0.3}
-          roughness={0.18}
-        />
-      </mesh>
-    </group>
-  )
-}
-
-function FrozenDecor() {
-  return (
-    <>
-      <IceCrystal x={17} z={16} rot={0.5} />
-      <IceCrystal x={-16} z={14} rot={1.1} />
-      <IceCrystal x={14} z={-17} rot={2.2} />
-      <IceCrystal x={-14} z={-16} rot={0.8} />
     </>
   )
 }
@@ -157,13 +88,23 @@ function NightmareDecor() {
 function BiomeDecorations({ biomeId }: { biomeId: BiomeType }) {
   switch (biomeId) {
     case 'grasslands':
-      return <GrasslandsDecor />
-    case 'volcanic':
-      return <VolcanicDecor />
+    case 'desert':
     case 'frozen':
-      return <FrozenDecor />
+      return <KenneyBiomeDecorations biomeId={biomeId} />
+    case 'volcanic':
+      return (
+        <>
+          <VolcanicLavaDecor />
+          <KenneyBiomeDecorations biomeId="volcanic" />
+        </>
+      )
     case 'nightmare':
-      return <NightmareDecor />
+      return (
+        <>
+          <NightmareDecor />
+          <KenneyBiomeDecorations biomeId="nightmare" />
+        </>
+      )
     default:
       return null
   }

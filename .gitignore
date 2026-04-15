@@ -31,4 +31,6 @@ dist-ssr
 public/audio/bgm-loop.mp3
 public/models/towers/*.glb
 public/models/enemies/*.glb
+public/models/props/*.glb
+public/models/*/Textures/
 tmp-kenney/

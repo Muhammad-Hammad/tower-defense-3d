@@ -10,8 +10,11 @@
     "preview": "vite preview",
     "test": "vitest run",
     "fetch:bgm": "node scripts/fetch-bgm.mjs",
+    "fetch:bgm:insecure": "node scripts/fetch-bgm.mjs --insecure",
     "compress:bgm": "node scripts/compress-bgm.mjs",
-    "fetch:models": "node scripts/fetch-gltf-assets.mjs"
+    "fetch:models": "node scripts/fetch-gltf-assets.mjs",
+    "fetch:models:insecure": "node scripts/fetch-gltf-assets.mjs --insecure",
+    "sync:kenney": "node scripts/sync-kenney-local.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",

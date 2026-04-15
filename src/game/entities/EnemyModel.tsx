@@ -12,6 +12,21 @@ const HUE: Partial<Record<EnemyInst['type'], string>> = {
   tank: '#4a5d4a',
 }
 
+/** Per-type scale for Kenney UFO GLBs (silhouettes differ by enemy-ufo-a..d assignment). */
+const GLTF_SCALE: Partial<Record<EnemyInst['type'], number>> = {
+  runt: 0.3,
+  brute: 0.7,
+  tank: 0.6,
+  grunt: 0.52,
+  runner: 0.48,
+  armored: 0.56,
+  flyer: 0.53,
+  wraith: 0.51,
+  splitter: 0.54,
+  medic: 0.49,
+  kamikaze: 0.47,
+}
+
 function ProceduralEnemy({ enemy }: { enemy: EnemyInst }) {
   const ref = useRef<Mesh>(null)
   const cfg = enemyConfigs[enemy.type]
@@ -42,8 +57,7 @@ function EnemyGltf({ enemy }: { enemy: EnemyInst }) {
   const root = useMemo(() => scene.clone(true), [scene, enemy.type])
   const bobRef = useRef<import('three').Group>(null)
 
-  const scale =
-    enemy.type === 'runt' ? 0.32 : enemy.type === 'brute' ? 0.72 : enemy.type === 'tank' ? 0.62 : 0.52
+  const scale = GLTF_SCALE[enemy.type] ?? 0.52
 
   useLayoutEffect(() => {
     root.traverse((obj) => {
